@@ -1,3 +1,6 @@
 # isme jo bhi file rhegi vo ignore ho jayegi
 #Ignore node_modules directory
 node_modules/
+
+#push dotenv into gitignore
+.env
