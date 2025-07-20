@@ -13,18 +13,34 @@ app.use(bodyParser.json());
 //configure dotenv
 require('dotenv').config();
 
+const passport = require('./auth');
 
-const MenuItem = require('./models/MenuItem');
+//middleware function for logging
+const logRequest = (req,res,next) =>{
+  //console.log(`[${new Date().toLocaleString()}] Request made to : ${req.originalUrl}`);
+  next();//move to the next phase
+}
 
-app.get('/', (req, res) =>{
-  res.send('Hello World')
+app.use(logRequest); 
+
+//initalize passport
+app.use(passport.initialize());
+
+
+
+const localAuthMiddleware = passport.authenticate('local',{session : false});
+
+app.get('/',(req,res) => {
+  res.send('Welcome to our Hotel');
 })
 
 
 
+const MenuItem = require('./models/MenuItem');
 //import the router file for person
 const personRoutes = require('./routes/personRoutes');
-app.use('/person',personRoutes);
+
+app.use('/person',localAuthMiddleware,personRoutes);
 
 //import the router file for menuitems
 const menuRoutes = require('./routes/menuRoutes');

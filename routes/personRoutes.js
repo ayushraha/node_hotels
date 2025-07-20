@@ -5,36 +5,41 @@ const router = express.Router();
 const Person = require('./../models/Person');
 
 //post method
-router.post('/', async (req,res) =>{
-  try{
-    const data = req.body
+const bcrypt = require('bcrypt');
 
-    //create a newPerson document using mongodb model
-    const newPerson = new Person(data);
+router.get('/', async (req, res) => {
+  const { username, password } = req.query;
 
-    //save thee newPerson to db
-    const response = await newPerson.save();
-    console.log('data saved');
-    res.status(200).json(response);
+  // Check if both query parameters are present
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
   }
-catch(err){
-  console.error("Error occured: ",err.message);
-  res.status(500).json({error : err.message })
-}
 
-}
-)
+  try {
+    // Find person by username
+    const person = await Person.findOne({ username });
 
-router.get('/',async (req,res) =>{
-  try{
-    const data = await Person.find();
-    console.log('data fetched');
-    res.status(200).json(data);
-  }catch(err){
-    console.error("Error occured: ",err.message);
-  res.status(500).json({error : err.message })
+    if (!person) {
+      return res.status(404).json({ error: 'Person not found' });
+    }
+
+    // Compare plain password with hashed password
+    const isMatch = await bcrypt.compare(password, person.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Send back person data (without password)
+    const { password: pwd, ...personData } = person.toObject();
+    res.status(200).json(personData);
+
+  } catch (err) {
+    console.error("Error occurred:", err.message);
+    res.status(500).json({ error: err.message });
   }
-})
+});
+
 
 //parametrized API calling
 router.get('/:workType',async(req,res) =>{
