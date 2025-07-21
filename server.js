@@ -40,7 +40,7 @@ const MenuItem = require('./models/MenuItem');
 //import the router file for person
 const personRoutes = require('./routes/personRoutes');
 
-app.use('/person',localAuthMiddleware,personRoutes);
+app.use('/person',personRoutes);
 
 //import the router file for menuitems
 const menuRoutes = require('./routes/menuRoutes');

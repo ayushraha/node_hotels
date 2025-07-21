@@ -5,6 +5,24 @@ const router = express.Router();
 const Person = require('./../models/Person');
 
 //post method
+router.post('/', async(req,res) =>{
+  try{
+    const data = req.body
+
+    //creae newPerson document using mongodb model
+    const newPerson = new Person(data);
+
+    //save the newperson to db
+    const response = await newPerson.save();
+    console.log('data saved');
+    res.status(200).json(response);
+  }
+  catch(err){
+    console.error("error occured :",err.message);
+    res.status(500).json({error : err.message});
+
+  }
+})
 const bcrypt = require('bcrypt');
 
 router.get('/', async (req, res) => {
